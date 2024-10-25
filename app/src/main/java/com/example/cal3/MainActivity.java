@@ -1,18 +1,12 @@
 package com.example.cal3;
 
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
-//new
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
+
 import java.text.DecimalFormat;
-//finish
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,14 +16,12 @@ public class MainActivity extends AppCompatActivity {
     private double operandB = 0;
     private String operator = "";
     private boolean isOperatorPressed = false;
-    private boolean isRadianMode = false;
+    private boolean isRadianMode = false; // 初始为 degree to radian 模式
     private DecimalFormat decimalFormat = new DecimalFormat("#.######");
 
-//override??
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
         solution = findViewById(R.id.solution);
@@ -47,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.zero).setOnClickListener(v -> appendNumber("0"));
         findViewById(R.id.point).setOnClickListener(v -> appendNumber("."));
 
-        // 运算符按钮监听 check press
+        // 运算符按钮监听
         findViewById(R.id.plus).setOnClickListener(v -> selectOperator("+"));
         findViewById(R.id.minus).setOnClickListener(v -> selectOperator("-"));
         findViewById(R.id.mult).setOnClickListener(v -> selectOperator("*"));
@@ -62,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.equal).setOnClickListener(v -> {
             if (isOperatorPressed) {
                 // 如果按下的是运算符，使用结果更新 operandA
-                double result = calculateResult(); // 这里可以调用计算结果的方法
+                double result = calculateResult();
                 solution.setText(decimalFormat.format(result));
                 operandA = result;  // 更新 operandA 为计算结果
                 currentInput = "";   // 清空当前输入，等待新的输入
@@ -75,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         // 清除按钮监听
         findViewById(R.id.CLR).setOnClickListener(v -> clearInput());
 
-        // Radian/Decimal 切换按钮 toggmode??
+        // Radian/Decimal 切换按钮
         findViewById(R.id.RD).setOnClickListener(v -> toggleMode());
     }
 
@@ -99,8 +91,6 @@ public class MainActivity extends AppCompatActivity {
         currentInput = "";
         isOperatorPressed = true;
     }
-
-    // ok fins aqui
 
     private double calculateResult() {
         // 确保有有效输入
@@ -167,9 +157,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void toggleMode() {
+
         isRadianMode = !isRadianMode;  // 切换模式
-        String modeText = isRadianMode ? "Radian" : "Degree";
-        solution.setText(modeText);  // 在切换时更新显示
+
+        // 更新显示模式文本
+        String modeText = isRadianMode ? "Radian to Degree" : "Degree to Radian";
+        solution.setText(modeText); // 只显示模式文本
+
+        // 如果切换到度数模式，确保转换值为角度（如果当前有值）
+        if (currentInput.isEmpty()) {
+            return; // 如果当前没有输入，直接返回
+        }
+
+        double value = Double.parseDouble(currentInput);
+        if (isRadianMode) {
+            // 如果切换到弧度模式，进行角度到弧度的转换
+            value = Math.toRadians(value);
+        } else {
+            // 如果切换到度数模式，进行弧度到角度的转换
+            value = Math.toDegrees(value);
+        }
+
+        // 显示转换后的值
+        solution.setText(decimalFormat.format(value)); // 更新显示为转换后的值
+        currentInput = ""; // 清空输入以便用户可以输入新的值
     }
 
     private void clearInput() {
@@ -178,16 +189,7 @@ public class MainActivity extends AppCompatActivity {
         operandB = 0;
         operator = "";
         isOperatorPressed = false;
+        isRadianMode = false; // 重置为默认模式
         solution.setText("");
-
-
-        //default
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
     }
 }
